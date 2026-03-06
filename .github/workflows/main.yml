@@ -1,0 +1,20 @@
+name: 自动同步优选IP
+
+on:
+  schedule:
+    - cron: '0 22 * * *' # 每天早上 6 点运行
+  workflow_dispatch: # 支持手动点击运行
+
+jobs:
+  run-sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: 安装 Python 依赖
+        run: pip install requests
+      - name: 运行同步脚本
+        env:
+          CF_ACCOUNT: ${{ secrets.CF_ACCOUNT }}
+          CF_NAMESPACE: ${{ secrets.CF_NAMESPACE }}
+          CF_TOKEN: ${{ secrets.CF_TOKEN }}
+        run: python update_ip.py
