@@ -1,12 +1,10 @@
 import requests
 import json
 import os
-
-# 从 GitHub Secrets 获取配置
-ACCOUNT = os.getenv('CF_ACCOUNT')
+# 修改第 6 行和第 8 行，确保与 GitHub Secrets 的名称完全一样
+ACCOUNT = os.getenv('CF_ACCOUNT_ID')
 NAMESPACE = os.getenv('CF_NAMESPACE')
-TOKEN = os.getenv('CF_TOKEN')
-
+TOKEN = os.getenv('CF_API_TOKEN')
 countries = {
     "US": "https://raw.githubusercontent.com/cmliu/CFcdnIP/master/US.txt",
     "JP": "https://raw.githubusercontent.com/cmliu/CFcdnIP/master/JP.txt",
