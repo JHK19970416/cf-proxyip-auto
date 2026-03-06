@@ -14,8 +14,7 @@ jobs:
         run: pip install requests
       - name: 运行同步脚本
         env:
-          # 这里的左侧名称必须与 Python 脚本中的 os.getenv 一致
-          # 右侧的 secrets.XXX 必须与你 GitHub Secrets 页面存的名字一模一样
+          # 必须与你 Secrets 页面（image_cda6b9.png）存的名字一模一样
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           CF_NAMESPACE: ${{ secrets.CF_NAMESPACE }}
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
