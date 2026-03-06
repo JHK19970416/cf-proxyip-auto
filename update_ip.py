@@ -1,26 +1,40 @@
 import requests
 import json
+import os
+
+# 从 GitHub Secrets 获取配置
+ACCOUNT = os.getenv('CF_ACCOUNT')
+NAMESPACE = os.getenv('CF_NAMESPACE')
+TOKEN = os.getenv('CF_TOKEN')
 
 countries = {
-"US":"https://raw.githubusercontent.com/cmliu/CFcdnIP/master/US.txt",
-"JP":"https://raw.githubusercontent.com/cmliu/CFcdnIP/master/JP.txt",
-"KR":"https://raw.githubusercontent.com/cmliu/CFcdnIP/master/KR.txt",
-"HK":"https://raw.githubusercontent.com/cmliu/CFcdnIP/master/HK.txt",
-"DE":"https://raw.githubusercontent.com/cmliu/CFcdnIP/master/DE.txt",
-"GB":"https://raw.githubusercontent.com/cmliu/CFcdnIP/master/GB.txt",
-"TW":"https://raw.githubusercontent.com/cmliu/CFcdnIP/master/TW.txt",
-"TR":"https://raw.githubusercontent.com/cmliu/CFcdnIP/master/TR.txt"
+    "US": "https://raw.githubusercontent.com/cmliu/CFcdnIP/master/US.txt",
+    "JP": "https://raw.githubusercontent.com/cmliu/CFcdnIP/master/JP.txt",
+    "HK": "https://raw.githubusercontent.com/cmliu/CFcdnIP/master/HK.txt",
+    "SG": "https://raw.githubusercontent.com/cmliu/CFcdnIP/master/SG.txt",  # 新加坡
+    "DE": "https://raw.githubusercontent.com/cmliu/CFcdnIP/master/DE.txt",  # 德国
+    "GB": "https://raw.githubusercontent.com/cmliu/CFcdnIP/master/GB.txt",  # 英国
+    "KR": "https://raw.githubusercontent.com/cmliu/CFcdnIP/master/KR.txt",  # 韩国
+    "TR": "https://raw.githubusercontent.com/cmliu/CFcdnIP/master/TR.txt",  # 土耳其
+    "TW": "https://raw.githubusercontent.com/cmliu/CFcdnIP/master/TW.txt"   # 台湾
 }
 
 ip_pool = {}
 
-for c,url in countries.items():
-    r=requests.get(url)
-    ips=[]
-    for line in r.text.split("\n"):
-        ip=line.strip()
-        if ip:
-            ips.append(ip)
-    ip_pool[c]=ips
+for c, url in countries.items():
+    try:
+        r = requests.get(url)
+        ips = [line.strip() for line in r.text.split("\n") if line.strip()]
+        ip_pool[c] = ips
+    except:
+        continue
 
-print(json.dumps(ip_pool))
+# 写入 Cloudflare KV
+cf_api = f"https://api.cloudflare.com/client/v4/accounts/{ACCOUNT}/storage/kv/namespaces/{NAMESPACE}/values/ips"
+headers = {
+    "Authorization": f"Bearer {TOKEN}",
+    "Content-Type": "application/json"
+}
+
+requests.put(cf_api, headers=headers, data=json.dumps(ip_pool))
+print("IP 同步至 Cloudflare KV 成功！")
